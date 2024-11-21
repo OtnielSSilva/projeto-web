@@ -11,16 +11,10 @@ router.post(
   authMiddleware,
   roleMiddleware("admin"),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { title, genre, price, description, requirements } = req.body;
+    const gameData = req.body;
 
     try {
-      const newGame = new Game({
-        title,
-        genre,
-        price,
-        description,
-        requirements,
-      });
+      const newGame = new Game(gameData);
       await newGame.save();
       res.status(201).json(newGame);
     } catch (error) {
@@ -34,11 +28,16 @@ router.post(
 router.get(
   "/",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { genre, minPrice, maxPrice } = req.query;
+    const { genre, isFree, minAge, platform, minPrice, maxPrice } = req.query;
 
     try {
       const query: any = {};
-      if (genre) query.genre = genre as string;
+
+      if (genre)
+        query.genres = { $elemMatch: { description: genre as string } };
+      if (isFree) query.is_free = isFree === "true";
+      if (minAge) query.required_age = { $gte: Number(minAge) };
+      if (platform) query[`platforms.${platform}`] = true;
       if (minPrice) query.price = { $gte: Number(minPrice) };
       if (maxPrice) query.price = { ...query.price, $lte: Number(maxPrice) };
 
@@ -53,16 +52,16 @@ router.get(
 
 // Obter detalhes de um jogo específico
 router.get(
-  "/:id",
+  "/:appid",
   async (
-    req: Request<{ id: string }>,
+    req: Request<{ appid: string }>,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    const { id } = req.params;
+    const { appid } = req.params;
 
     try {
-      const game = await Game.findById(id);
+      const game = await Game.findOne({ appid: Number(appid) });
       if (!game) {
         res.status(404).json({ message: "Jogo não encontrado" });
         return;
@@ -71,6 +70,65 @@ router.get(
       res.json(game);
     } catch (error) {
       console.error("Erro ao buscar jogo:", error);
+      next(error);
+    }
+  }
+);
+
+// Atualizar detalhes de um jogo (somente admins)
+router.put(
+  "/:appid",
+  authMiddleware,
+  roleMiddleware("admin"),
+  async (
+    req: Request<{ appid: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const { appid } = req.params;
+    const updateData = req.body;
+
+    try {
+      const game = await Game.findOneAndUpdate(
+        { appid: Number(appid) },
+        { $set: updateData },
+        { new: true }
+      );
+      if (!game) {
+        res.status(404).json({ message: "Jogo não encontrado" });
+        return;
+      }
+
+      res.json(game);
+    } catch (error) {
+      console.error("Erro ao atualizar jogo:", error);
+      next(error);
+    }
+  }
+);
+
+// Deletar um jogo (somente admins)
+router.delete(
+  "/:appid",
+  authMiddleware,
+  roleMiddleware("admin"),
+  async (
+    req: Request<{ appid: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const { appid } = req.params;
+
+    try {
+      const game = await Game.findOneAndDelete({ appid: Number(appid) });
+      if (!game) {
+        res.status(404).json({ message: "Jogo não encontrado" });
+        return;
+      }
+
+      res.json({ message: "Jogo deletado com sucesso!" });
+    } catch (error) {
+      console.error("Erro ao deletar jogo:", error);
       next(error);
     }
   }

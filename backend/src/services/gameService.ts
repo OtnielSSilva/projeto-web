@@ -1,5 +1,5 @@
 import axios from "axios";
-import GameModel from "../models/gameModel";
+import GameModel from "../models/Game";
 
 const STEAM_LIST_API = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
 const STEAM_DETAILS_API =
@@ -117,7 +117,7 @@ export const saveGameDetails = async (gameDetails: any): Promise<void> => {
           ratings,
         },
       },
-      { upsert: true } // Insere ou atualiza
+      { upsert: true }
     );
   } catch (error) {
     console.error(
@@ -133,13 +133,21 @@ export const saveGameDetails = async (gameDetails: any): Promise<void> => {
 export const processGames = async (): Promise<void> => {
   try {
     const appids = await fetchGameList();
-    for (const appid of appids) {
+
+    const limitedAppIds = appids.slice(0, 50);
+
+    for (const appid of limitedAppIds) {
+      console.log(`Processando jogo com appid: ${appid}`);
       const details = await fetchGameDetails(appid);
       if (details) {
         await saveGameDetails(details);
+        console.log(`Jogo ${appid} salvo com sucesso!`);
+      } else {
+        console.warn(`Detalhes não encontrados para o jogo ${appid}.`);
       }
     }
-    console.log("Todos os jogos foram processados e salvos.");
+
+    console.log("Processamento dos finalizado.");
   } catch (error) {
     console.error("Erro ao processar os jogos:", error);
   }

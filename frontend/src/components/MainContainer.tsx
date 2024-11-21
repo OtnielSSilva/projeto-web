@@ -1,31 +1,31 @@
-import MovieCard from "./MovieCard";
-import { Movie } from "../types/movie";
+import GameCard from "./GameCard";
+import { IGame } from "../types/game";
 
 interface MainContainerProps {
-	movies: Movie[];
-	handleFav: (movie: Movie) => void;
-	favs: Movie[];
+  games: IGame[];
+  handleFav: (game: IGame) => void;
+  favs: IGame[];
 }
 
 function MainContainer({
-	movies,
-	handleFav,
-	favs,
+  games,
+  handleFav,
+  favs,
 }: MainContainerProps): JSX.Element {
-	return (
-		<div className="container mx-auto p-4">
-			<div className="flex flex-wrap gap-4 justify-center">
-				{movies.map((movie: Movie) => (
-					<MovieCard
-						key={movie.imdbID}
-						movie={movie}
-						handleFav={() => handleFav(movie)}
-						favs={favs}
-					/>
-				))}
-			</div>
-		</div>
-	);
+  return (
+    <div className="container mx-auto p-4">
+      <div className="flex flex-wrap gap-4 justify-center">
+        {games.map((game: IGame) => (
+          <GameCard
+            key={game.appid}
+            game={game}
+            handleFav={() => handleFav(game)}
+            favs={favs}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default MainContainer;

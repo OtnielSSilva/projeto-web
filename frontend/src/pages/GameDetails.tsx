@@ -11,7 +11,7 @@ const GameDetails = () => {
 
   useEffect(() => {
     if (appid) {
-      fetch(`http://localhost:3000/api/games/`) 
+      fetch(`http://localhost:3000/api/games/${appid}`) // Adicionando o ID do jogo ao endpoint
         .then((res) => {
           if (!res.ok) {
             throw new Error("Erro ao buscar os detalhes do jogo.");
@@ -19,8 +19,12 @@ const GameDetails = () => {
           return res.json();
         })
         .then((data) => {
-          setGame(data);
-          setError("");
+          if (data) {
+            setGame(data);
+            setError("");
+          } else {
+            setError("Detalhes do jogo não encontrados.");
+          }
         })
         .catch((err) => {
           console.error("Erro ao buscar detalhes do jogo:", err);
@@ -67,29 +71,29 @@ const GameDetails = () => {
       <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg w-full max-w-2xl">
         <img
           src={game.header_image || "https://via.placeholder.com/600x300"}
-          alt={`${game.name} header`}
+          alt={`${game.name || "Jogo"} header`}
           className="mb-4 mx-auto"
         />
         <div className="p-6">
-          <h2 className="text-white text-3xl font-bold mb-4">{game.name}</h2>
+          <h2 className="text-white text-3xl font-bold mb-4">{game.name || "Nome não disponível"}</h2>
           <p className="text-gray-400 text-lg mb-4">
             {game.detailed_description || "Descrição não disponível."}
           </p>
           <p className="text-gray-300 text-md mb-2">
             <strong>Gêneros:</strong>{" "}
-            {game.genres.length > 0
+            {game.genres && game.genres.length > 0
               ? game.genres.map((genre) => genre.description).join(", ")
               : "Indisponível"}
           </p>
           <p className="text-gray-300 text-md mb-2">
             <strong>Desenvolvedores:</strong>{" "}
-            {game.developers.length > 0
+            {game.developers && game.developers.length > 0
               ? game.developers.join(", ")
               : "Indisponível"}
           </p>
           <p className="text-gray-300 text-md mb-2">
             <strong>Publicadores:</strong>{" "}
-            {game.publishers.length > 0
+            {game.publishers && game.publishers.length > 0
               ? game.publishers.join(", ")
               : "Indisponível"}
           </p>

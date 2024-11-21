@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { IGame } from "@/types/game";
 import { MyCarousel } from "@/components/MyCarousel";
+import { useNavigate } from "react-router-dom";
 
 interface HomeProps {
   handleFav: (game: IGame) => void;
@@ -11,6 +12,7 @@ export default function Home({ handleFav, favs }: HomeProps) {
   const [games, setGames] = useState<IGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const fetchGames = async () => {
     setIsLoading(true);
@@ -56,14 +58,16 @@ export default function Home({ handleFav, favs }: HomeProps) {
             {games.map((game, index) => (
               <div
                 key={game.appid || index}
-                className="bg-gray-800 rounded-lg overflow-hidden shadow-md p-4 hover:shadow-lg"
+                className="bg-gray-800 rounded-lg overflow-hidden shadow-md p-4 hover:shadow-lg hover:opacity-95"
               >
                 <img
                   src={game.header_image || "https://via.placeholder.com/300"}
                   alt={`${game.name} header`}
-                  className="w-full h-48 object-cover mb-4 rounded"
+                  className="w-full h-48 object-cover mb-4 rounded cursor-pointer"
+                  onClick={() => navigate(`/game/${game.appid}`)}
                 />
-                <h3 className="text-white font-bold text-lg truncate">
+                <h3 className="text-white font-bold text-lg truncate cursor-pointer" 
+                  onClick={() => navigate(`/game/${game.appid}`)}>
                   {game.name}
                 </h3>
                 <p className="text-gray-400 text-sm">

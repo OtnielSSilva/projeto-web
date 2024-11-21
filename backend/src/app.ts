@@ -6,6 +6,7 @@ import userRoutes from "./routes/user";
 import gameRoutes from "./routes/games";
 import wishlistRoutes from "./routes/wishlist";
 
+import "./jobs/scheduleJob";
 
 const app = express();
 

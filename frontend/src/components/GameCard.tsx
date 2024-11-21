@@ -31,10 +31,10 @@ const GameCard = ({ game, favs, handleFav }: GameCardProps): JSX.Element => {
           {game.name}
         </h3>
         <p className="text-gray-400 text-xs sm:text-sm md:text-base line-clamp-3">
-          {game.release_date.date}
+          {game.release_date?.date || "Data de lançamento não disponível"}
         </p>
         <p className="text-gray-500 text-xs mt-1 truncate">
-          {game.developers?.join(", ")}
+          {game.developers?.join(", ") || "Desenvolvedor não disponível"}
         </p>
       </div>
 

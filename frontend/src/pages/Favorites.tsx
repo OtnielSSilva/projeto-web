@@ -17,14 +17,23 @@ export default function Favorites({ handleFav, favs }: FavoritesProps) {
         </p>
       ) : (
         <div className="flex flex-wrap gap-4 justify-center sm:justify-center md:justify-start">
-          {favs.map((game: IGame) => (
-            <GameCard
-              key={game.appid}
-              game={game}
-              handleFav={() => handleFav(game)}
-              favs={favs}
-            />
-          ))}
+          {favs.map((game) =>
+            game ? (
+              <GameCard
+                key={game.appid}
+                game={{
+                  ...game,
+                  header_image:
+                    game.header_image || "https://via.placeholder.com/600x300", // Imagem padrão
+                  name: game.name || "Nome não disponível",
+                  release_date: game.release_date || { date: "Data não disponível" },
+                  developers: game.developers || ["Desenvolvedor não disponível"],
+                }}
+                handleFav={() => handleFav(game)}
+                favs={favs}
+              />
+            ) : null
+          )}
         </div>
       )}
     </div>

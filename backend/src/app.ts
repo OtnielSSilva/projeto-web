@@ -3,6 +3,7 @@ import connectDB from "./config/database";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
+import "./jobs/scheduleJob";
 
 const app = express();
 

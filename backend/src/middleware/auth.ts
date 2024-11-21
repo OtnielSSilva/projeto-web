@@ -10,10 +10,13 @@ const authMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
+  const authHeader = req.header("Authorization");
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : null;
 
   if (!token) {
-    res.status(401).json({ message: "Acesso negado" });
+    res.status(401).json({ message: "Acesso negado. Token não fornecido." });
     return;
   }
 
@@ -22,10 +25,12 @@ const authMiddleware = (
       id: string;
       role: string;
     };
+
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(400).json({ message: "Token inválido" });
+    console.error("Erro ao validar token:", error);
+    res.status(401).json({ message: "Token inválido ou expirado." });
   }
 };
 

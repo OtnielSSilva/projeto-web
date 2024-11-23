@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export interface AuthRequest extends Request {
-  user?: { id: string; role: string };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: string; role: string };
+    }
+  }
 }
 
 const authMiddleware = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void => {
@@ -28,9 +32,15 @@ const authMiddleware = (
 
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao validar token:", error);
-    res.status(401).json({ message: "Token inválido ou expirado." });
+    if (error.name === "TokenExpiredError") {
+      res.status(401).json({ message: "Token expirado." });
+      return;
+    } else {
+      res.status(401).json({ message: "Token inválido." });
+      return;
+    }
   }
 };
 

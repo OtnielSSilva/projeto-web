@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import User from "../models/User";
-import authMiddleware, { AuthRequest } from "../middleware/auth";
+import authMiddleware from "../middleware/auth";
 import roleMiddleware from "../middleware/role";
 
 const router = Router();
@@ -10,13 +10,13 @@ router.get(
   "/admin",
   authMiddleware,
   roleMiddleware("admin"),
-  (req: AuthRequest, res) => {
+  (req: Request, res: Response) => {
     res.json({ message: `Bem-vindo, admin ${req.user?.id}` });
   }
 );
 
 // Rota para perfil do usuário
-router.get("/profile", authMiddleware, async (req: AuthRequest, res) => {
+router.get("/profile", authMiddleware, async (req: Request, res: Response) => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "Usuário não autenticado." });

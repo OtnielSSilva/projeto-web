@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
-interface IGame extends Document {
+export interface IGame extends Document {
+  _id: Types.ObjectId;
   appid: number;
   name: string;
   type: string;
@@ -88,7 +89,7 @@ const GameSchema: Schema = new Schema({
   header_image: { type: String },
   capsule_image: { type: String },
   capsule_imagev5: { type: String },
-  website: { type: String },
+  website: { type: String }, // Campos opcionais não precisam de `required`
   pc_requirements: { minimum: { type: String } },
   mac_requirements: { minimum: { type: String } },
   linux_requirements: { minimum: { type: String } },
@@ -151,18 +152,6 @@ const GameSchema: Schema = new Schema({
     notes: { type: String },
   },
   ratings: { type: Map, of: Object },
-});
-
-GameSchema.pre("save", function (next) {
-  Object.keys(this.toObject()).forEach((key) => {
-    if (
-      typeof this[key] === "string" &&
-      Buffer.from(this[key], "utf8").toString("utf8") !== this[key]
-    ) {
-      this[key] = "";
-    }
-  });
-  next();
 });
 
 export default mongoose.model<IGame>("Game", GameSchema);

@@ -53,11 +53,7 @@ router.get(
 // Obter detalhes de um jogo específico
 router.get(
   "/:appid",
-  async (
-    req: Request<{ appid: string }>,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  async (req: Request<{ appid: string }>, res: Response, next: NextFunction) => {
     const { appid } = req.params;
 
     try {

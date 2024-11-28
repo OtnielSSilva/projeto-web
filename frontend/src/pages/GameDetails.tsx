@@ -35,16 +35,16 @@ const GameDetails = () => {
   }, [appid]);
 
   if (isLoading) {
-    return <div className="text-white text-center">Carregando...</div>;
+    return <div className="text-center text-white">Carregando...</div>;
   }
 
   if (error) {
     return (
-      <div className="text-red-500 text-center">
+      <div className="text-center text-red-500">
         <p>{error}</p>
         <button
           onClick={() => navigate(-1)}
-          className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          className="px-4 py-2 mt-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-600"
         >
           Voltar
         </button>
@@ -54,11 +54,11 @@ const GameDetails = () => {
 
   if (!game) {
     return (
-      <div className="text-gray-400 text-center">
+      <div className="text-center text-gray-400">
         <p>Detalhes do jogo não encontrados.</p>
         <button
           onClick={() => navigate(-1)}
-          className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          className="px-4 py-2 mt-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-600"
         >
           Voltar
         </button>
@@ -67,37 +67,40 @@ const GameDetails = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900 p-4">
-      <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg w-full max-w-2xl">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-gray-900">
+      <div className="w-full max-w-2xl overflow-hidden bg-gray-800 rounded-lg shadow-lg">
         <img
           src={game.header_image || "https://via.placeholder.com/600x300"}
           alt={`${game.name || "Jogo"} header`}
-          className="mb-4 mx-auto"
+          className="mx-auto mb-4"
         />
         <div className="p-6">
-          <h2 className="text-white text-3xl font-bold mb-4">{game.name || "Nome não disponível"}</h2>
-          <p className="text-gray-400 text-lg mb-4">
-            {game.detailed_description || "Descrição não disponível."}
+          <h2 className="mb-4 text-3xl font-bold text-white">{game.name || "Nome não disponível"}</h2>
+          <p className="mb-4 text-lg text-gray-400">
+          <div
+            dangerouslySetInnerHTML={{__html: game.detailed_description}}
+          />
+            {/* {game.detailed_description || "Descrição não disponível."} */}
           </p>
-          <p className="text-gray-300 text-md mb-2">
+          <p className="mb-2 text-gray-300 text-md">
             <strong>Gêneros:</strong>{" "}
             {game.genres && game.genres.length > 0
               ? game.genres.map((genre) => genre.description).join(", ")
               : "Indisponível"}
           </p>
-          <p className="text-gray-300 text-md mb-2">
+          <p className="mb-2 text-gray-300 text-md">
             <strong>Desenvolvedores:</strong>{" "}
             {game.developers && game.developers.length > 0
               ? game.developers.join(", ")
               : "Indisponível"}
           </p>
-          <p className="text-gray-300 text-md mb-2">
+          <p className="mb-2 text-gray-300 text-md">
             <strong>Publicadores:</strong>{" "}
             {game.publishers && game.publishers.length > 0
               ? game.publishers.join(", ")
               : "Indisponível"}
           </p>
-          <p className="text-gray-300 text-md mb-2">
+          <p className="mb-2 text-gray-300 text-md">
             <strong>Data de Lançamento:</strong>{" "}
             {game.release_date?.date || "Indisponível"}
           </p>
@@ -108,7 +111,7 @@ const GameDetails = () => {
           )}
           <button
             onClick={() => navigate(-1)}
-            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+            className="px-4 py-2 mt-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-600"
           >
             Voltar
           </button>

@@ -12,7 +12,7 @@ export const fetchGameList = async (): Promise<number[]> => {
   try {
     const { data } = await axios.get(STEAM_LIST_API);
     const apps = data.applist.apps;
-    return apps.map((app: { appid: number }) => app.appid);
+    return apps.map((app: { name: string; appid: number }) => app.name !== "" && app.appid);
   } catch (error) {
     console.error("Erro ao obter a lista de jogos:", error);
     throw error;

@@ -7,6 +7,7 @@ import userRoutes from "./routes/user";
 import gameRoutes from "./routes/games";
 import wishlistRoutes from "./routes/wishlist";
 import cartRoutes from './routes/cartRoutes';
+import commentRoutes from "./routes/comments";
 
 import "./jobs/scheduleJob";
 
@@ -23,6 +24,8 @@ app.use("/api/user", userRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use('/api/cart', cartRoutes);
+app.use("/api/comments", commentRoutes); 
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

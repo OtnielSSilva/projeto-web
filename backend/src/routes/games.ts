@@ -53,7 +53,11 @@ router.get(
 // Obter detalhes de um jogo específico
 router.get(
   "/:appid",
-  async (req: Request<{ appid: string }>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<{ appid: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
     const { appid } = req.params;
 
     try {
@@ -66,6 +70,31 @@ router.get(
       res.json(game);
     } catch (error) {
       console.error("Erro ao buscar jogo:", error);
+      next(error);
+    }
+  }
+);
+
+// Obter jogos destacados para o carrossel
+router.get(
+  "/featured",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // Certifica-se de selecionar aleatoriamente até 3 jogos entre os 8 disponíveis
+      const featuredGames = await Game.aggregate([
+        { $sample: { size: 3 } }, // Seleciona no máximo 3 jogos
+        { $project: { appid: 1,  header_image: 1, name: 1 } }, // Retorna campos necessários
+      ]);
+
+      if (featuredGames.length === 0) {
+        res.status(404).json({ message: "Nenhum jogo encontrado para o carrossel." });
+        return;
+      }
+
+      res.status(200).json(featuredGames);
+    } catch (error) {
+      console.error("Erro ao buscar jogos destacados:", error);
+      res.status(500).json({ message: "Erro interno ao buscar jogos destacados." });
       next(error);
     }
   }

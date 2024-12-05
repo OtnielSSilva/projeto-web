@@ -18,9 +18,13 @@ export function MyCarousel() {
         const data = await response.json();
 
         // Validar se os jogos possuem os campos essenciais
-        const validGames = data.filter(
-          (game: IGame) => game.appid && game.header_image && game.name
+         const validGames = data.filter(
+          (game: IGame) => game.header_image && game.name
         );
+
+        // const validGames = data.filter(
+        //   (game: IGame) => game.appid && game.header_image && game.name
+        // );
 
         if (validGames.length === 0) {
           throw new Error("Nenhum jogo válido disponível para o carrossel.");
@@ -60,7 +64,7 @@ export function MyCarousel() {
     <div className="bg-slate-800">
       <Carousel pauseOnHover>
         {games.map((game) => (
-          <div key={game.appid} className="relative">
+          <div key={game.appid || game.name} className="relative">
             <Link to={`/game/${game.appid}`}>
               <img
                 src={game.header_image || "/images/placeholder.jpg"}

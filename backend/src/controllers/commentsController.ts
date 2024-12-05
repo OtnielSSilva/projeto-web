@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import Comment, { IComment } from "../models/Comment";
+import { RequestHandler } from "express";
+import Comment from "../models/Comment";
 import Game from "../models/Game";
 import mongoose from "mongoose";
-import { validationResult } from "express-validator";
 
 // Adicionar um comentário
 export const addComment: RequestHandler = async (req, res, next) => {
@@ -13,29 +12,30 @@ export const addComment: RequestHandler = async (req, res, next) => {
     const userId = req.user!.id; // Usando req.user do authMiddleware
 
     // Validar ID do jogo
-    if (!gameId || isNaN(Number(gameId))) {
+    if (!gameId || isNaN(gameId)) {
       res
         .status(400)
         .json({ message: "ID de jogo inválido. Deve ser um número." });
       return;
     }
 
-    const gameExists = await Game.exists({ appid: Number(gameId) });
+    // Verificar se o jogo existe
+    const gameExists = await Game.exists({ appid: gameId });
     if (!gameExists) {
       res.status(404).json({ message: "Jogo não encontrado." });
       return;
     }
-    // Verificar erros de validação
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+
+    // Verificar se o conteúdo está vazio
+    if (!content || content.trim() === "") {
+      res.status(400).json({ message: "O conteúdo do comentário é obrigatório." });
       return;
     }
 
     // Criar e salvar o comentário
     const comment = new Comment({
       user: userId,
-      game: Number(gameId),
+      game: gameId,
       content,
     });
 
@@ -105,6 +105,11 @@ export const updateComment: RequestHandler = async (req, res, next) => {
     }
 
     // Atualizar o conteúdo
+    if (!content || content.trim() === "") {
+      res.status(400).json({ message: "O conteúdo do comentário é obrigatório." });
+      return;
+    }
+
     comment.content = content;
     await comment.save();
 

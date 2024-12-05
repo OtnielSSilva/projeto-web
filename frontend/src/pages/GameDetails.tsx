@@ -15,7 +15,6 @@ const GameDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Funções auxiliares
   const getToken = () => localStorage.getItem("token");
 
   const parseJwt = (token: string) => {
@@ -80,7 +79,7 @@ const GameDetails = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/api/games/${numericAppId}/comments`);
+        const response = await fetch(`http://localhost:3000/api/comments/${numericAppId}/comments`);
         if (!response.ok) {
           throw new Error("Erro ao carregar os comentários.");
         }
@@ -112,7 +111,7 @@ const GameDetails = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/games/${numericAppId}/comments`, {
+      const response = await fetch(`http://localhost:3000/api/comments/${numericAppId}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

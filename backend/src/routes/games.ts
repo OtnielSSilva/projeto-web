@@ -5,6 +5,15 @@ import Game from "../models/Game";
 
 const router = Router();
 
+/**
+ * Helper para validar o parâmetro appid
+ * Retorna o número convertido ou null se for inválido
+ */
+const validateAppId = (appid: string): number | null => {
+  const parsedAppId = Number(appid);
+  return !isNaN(parsedAppId) && parsedAppId > 0 ? parsedAppId : null;
+};
+
 // Criar um novo jogo (somente admins)
 router.post(
   "/",
@@ -33,18 +42,53 @@ router.get(
     try {
       const query: any = {};
 
-      if (genre)
-        query.genres = { $elemMatch: { description: genre as string } };
+      // Filtrar por gênero
+      if (genre) query.genres = { $elemMatch: { description: genre as string } };
+
+      // Filtrar por jogos gratuitos
       if (isFree) query.is_free = isFree === "true";
-      if (minAge) query.required_age = { $gte: Number(minAge) };
+
+      // Filtrar por idade mínima
+      if (minAge && !isNaN(Number(minAge))) query.required_age = { $gte: Number(minAge) };
+
+      // Filtrar por plataforma
       if (platform) query[`platforms.${platform}`] = true;
-      if (minPrice) query.price = { $gte: Number(minPrice) };
-      if (maxPrice) query.price = { ...query.price, $lte: Number(maxPrice) };
+
+      // Filtrar por preço mínimo e máximo
+      if (minPrice && !isNaN(Number(minPrice))) query.price = { $gte: Number(minPrice) };
+      if (maxPrice && !isNaN(Number(maxPrice))) {
+        query.price = { ...query.price, $lte: Number(maxPrice) };
+      }
 
       const games = await Game.find(query);
       res.json(games);
     } catch (error) {
       console.error("Erro ao listar jogos:", error);
+      next(error);
+    }
+  }
+);
+
+// Obter jogos destacados para o carrossel
+router.get(
+  "/featured",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const featuredGames = await Game.aggregate([
+        { $match: { header_image: { $exists: true, $ne: null } } },
+        { $sample: { size: 3 } },
+        { $project: { header_image: 1, name: 1, _id: 0 } },
+      ]);
+
+      if (!featuredGames || featuredGames.length === 0) {
+        res.status(404).json({ message: "Nenhum jogo encontrado para o carrossel." });
+        return;
+      }
+
+      res.status(200).json(featuredGames);
+    } catch (error) {
+      console.log("Alo")
+      console.error("Erro ao buscar jogos destacados:", error);
       next(error);
     }
   }
@@ -58,10 +102,14 @@ router.get(
     res: Response,
     next: NextFunction
   ) => {
-    const { appid } = req.params;
+    const appid = validateAppId(req.params.appid);
+    if (!appid) {
+      res.status(400).json({ message: "O parâmetro appid deve ser um número válido." });
+      return;
+    }
 
     try {
-      const game = await Game.findOne({ appid: Number(appid) });
+      const game = await Game.findOne({ appid });
       if (!game) {
         res.status(404).json({ message: "Jogo não encontrado" });
         return;
@@ -70,31 +118,6 @@ router.get(
       res.json(game);
     } catch (error) {
       console.error("Erro ao buscar jogo:", error);
-      next(error);
-    }
-  }
-);
-
-// Obter jogos destacados para o carrossel
-router.get(
-  "/featured",
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      // Certifica-se de selecionar aleatoriamente até 3 jogos entre os 8 disponíveis
-      const featuredGames = await Game.aggregate([
-        { $sample: { size: 3 } }, // Seleciona no máximo 3 jogos
-        { $project: { appid: 1,  header_image: 1, name: 1 } }, // Retorna campos necessários
-      ]);
-
-      if (featuredGames.length === 0) {
-        res.status(404).json({ message: "Nenhum jogo encontrado para o carrossel." });
-        return;
-      }
-
-      res.status(200).json(featuredGames);
-    } catch (error) {
-      console.error("Erro ao buscar jogos destacados:", error);
-      res.status(500).json({ message: "Erro interno ao buscar jogos destacados." });
       next(error);
     }
   }
@@ -110,13 +133,16 @@ router.put(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    const { appid } = req.params;
-    const updateData = req.body;
+    const appid = validateAppId(req.params.appid);
+    if (!appid) {
+      res.status(400).json({ message: "O parâmetro appid deve ser um número válido." });
+      return;
+    }
 
     try {
       const game = await Game.findOneAndUpdate(
-        { appid: Number(appid) },
-        { $set: updateData },
+        { appid },
+        { $set: req.body },
         { new: true }
       );
       if (!game) {
@@ -142,10 +168,14 @@ router.delete(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    const { appid } = req.params;
+    const appid = validateAppId(req.params.appid);
+    if (!appid) {
+      res.status(400).json({ message: "O parâmetro appid deve ser um número válido." });
+      return;
+    }
 
     try {
-      const game = await Game.findOneAndDelete({ appid: Number(appid) });
+      const game = await Game.findOneAndDelete({ appid });
       if (!game) {
         res.status(404).json({ message: "Jogo não encontrado" });
         return;

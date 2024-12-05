@@ -1,0 +1,27 @@
+[
+    {
+      "code": "DESCONTO10",
+      "discount": 10,
+      "isActive": true,
+      "expirationDate": "2024-12-31T23:59:59.000Z"
+    },
+    {
+      "code": "DESCONTO20",
+      "discount": 20,
+      "isActive": true,
+      "expirationDate": "2024-12-31T23:59:59.000Z"
+    },
+    {
+      "code": "DESCONTO30",
+      "discount": 30,
+      "isActive": false,
+      "expirationDate": "2024-11-30T23:59:59.000Z"
+    },
+    {
+      "code": "BLACKFRIDAY50",
+      "discount": 50,
+      "isActive": true,
+      "expirationDate": "2024-11-29T23:59:59.000Z"
+    }
+  ]
+  

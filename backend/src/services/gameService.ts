@@ -75,6 +75,7 @@ export const saveGameDetails = async (gameDetails: any): Promise<void> => {
       background_raw,
       content_descriptors,
       ratings,
+      price_overview,
     } = gameDetails;
 
     await GameModel.updateOne(
@@ -115,6 +116,7 @@ export const saveGameDetails = async (gameDetails: any): Promise<void> => {
           background_raw,
           content_descriptors,
           ratings,
+          price_overview,
         },
       },
       { upsert: true }

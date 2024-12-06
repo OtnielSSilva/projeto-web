@@ -72,6 +72,14 @@ export interface IGame extends Document {
       descriptors?: string;
     };
   };
+  price_overview?: {
+    currency: string;
+    initial: number;
+    final: number;
+    discount_percent: number;
+    initial_formatted?: string;
+    final_formatted: string;
+  };
 }
 
 const GameSchema: Schema = new Schema({
@@ -152,6 +160,14 @@ const GameSchema: Schema = new Schema({
     notes: { type: String },
   },
   ratings: { type: Map, of: Object },
+  price_overview: {
+    currency: { type: String },
+    initial: { type: Number },
+    final: { type: Number },
+    discount_percent: { type: Number },
+    initial_formatted: { type: String },
+    final_formatted: { type: String },
+  },
 });
 
 export default mongoose.model<IGame>("Game", GameSchema);

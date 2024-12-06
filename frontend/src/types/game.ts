@@ -1,4 +1,5 @@
 export interface IGame {
+  _id: string;
   appid: number;
   name: string;
   type: string;
@@ -68,5 +69,13 @@ export interface IGame {
       rating: string;
       descriptors?: string;
     };
+  };
+  price_overview?: {
+    currency: string;
+    initial: number;
+    final: number;
+    discount_percent: number;
+    initial_formatted?: string;
+    final_formatted: string;
   };
 }

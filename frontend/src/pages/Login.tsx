@@ -29,7 +29,7 @@ const Login = () => {
 
       const data = await response.json();
       localStorage.setItem("token", data.token); // Salva o token no localStorage
-      navigate("/profile"); 
+      navigate("/"); 
     } catch (err) {
       setError("Erro ao conectar com o servidor.");
       console.error(err);

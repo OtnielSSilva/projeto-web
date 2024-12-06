@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { CartItem } from '../models/CartItem';
 import Game from '../models/Game';
+import Library from '../models/Library';
 
 // Adicionar item ao carrinho
 export const addItemToCart: RequestHandler = async (req, res, next) => {
@@ -84,6 +85,40 @@ export const updateCartItemQuantity: RequestHandler = async (req, res, next) => 
     await cartItem.save();
 
     res.status(200).json({ message: 'Quantidade atualizada', cartItem });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const checkout: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = req.user!.id; // ID do usuário autenticado
+
+    // Buscar todos os itens no carrinho
+    const cartItems = await CartItem.find({ user: userId }).populate("game");
+    if (cartItems.length === 0) {
+      res.status(400).json({ message: "Carrinho vazio." });
+      return;
+    }
+
+    // Adicionar jogos à biblioteca
+    let library = await Library.findOne({ userId });
+    if (!library) {
+      library = new Library({ userId, games: [] });
+    }
+
+    for (const item of cartItems) {
+      if (!library.games.includes(item.game)) {
+        library.games.push(item.game);
+      }
+    }
+
+    await library.save();
+
+    // Limpar o carrinho
+    await CartItem.deleteMany({ user: userId });
+    res.status(200).json({ message: "Compra finalizada com sucesso." });
+    return;
   } catch (error) {
     next(error);
   }

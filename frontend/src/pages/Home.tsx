@@ -1,33 +1,41 @@
 import { useEffect, useState } from "react";
 import { IGame } from "@/types/game";
 import { MyCarousel } from "@/components/MyCarousel";
-import { useNavigate } from "react-router-dom";
+import MainContainer from "@/components/MainContainer";
 
 interface HomeProps {
-  handleFav: (game: IGame) => void;
-  favs: IGame[];
+  handleAddToCart?: (game: IGame) => Promise<void>; 
+  handleFav?: (game: IGame) => Promise<void>; 
+  favs?: IGame[]; 
+  cartItems?: { _id: string; game: IGame }[]; 
+  handleRemoveFromCart?: (cartItemId: string) => Promise<void>; 
+  libraryGames?: IGame[]; 
 }
 
-export default function Home({ handleFav, favs }: HomeProps) {
+export default function Home({
+  handleFav = async () => {}, 
+  favs = [], 
+  handleAddToCart = async () => {}, 
+  cartItems = [], 
+  handleRemoveFromCart = async () => {}, 
+  libraryGames = [], 
+}: HomeProps) {
   const [games, setGames] = useState<IGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const fetchGames = async () => {
     setIsLoading(true);
+    setError(""); 
     try {
       const response = await fetch("http://localhost:3000/api/games");
-      console.log("Resposta bruta:", response); 
       if (!response.ok) {
         throw new Error("Erro ao carregar os jogos.");
       }
       const data = await response.json();
-      console.log("Dados recebidos:", data); 
       setGames(data.results || data || []);
-      console.log("Estado atual de games:", data.results || data || []);
     } catch (err) {
-      console.error("Erro ao carregar jogos:", err);
+      console.error(err);
       setError("Não foi possível carregar os jogos. Tente novamente.");
     } finally {
       setIsLoading(false);
@@ -35,10 +43,8 @@ export default function Home({ handleFav, favs }: HomeProps) {
   };
 
   useEffect(() => {
-    fetchGames(); 
+    fetchGames();
   }, []);
-
-  console.log("Games no estado:", games); 
 
   return (
     <main className="flex-grow">
@@ -48,52 +54,16 @@ export default function Home({ handleFav, favs }: HomeProps) {
           <div className="text-center text-gray-400">Carregando...</div>
         ) : error ? (
           <div className="text-center text-red-500">{error}</div>
-        ) : games.length === 0 ? (
-          <div className="text-center text-gray-400">
-            <h2 className="text-xl mb-4 md:text-2xl">Explore Jogos Populares</h2>
-            <p>Não há jogos disponíveis no momento.</p>
-          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {games.map((game, index) => (
-              <div
-                key={game.appid || index}
-                className="bg-gray-800 rounded-lg overflow-hidden shadow-md p-4 hover:shadow-lg hover:opacity-95"
-              >
-                <img
-                  src={game.header_image || "https://via.placeholder.com/300"}
-                  alt={`${game.name} header`}
-                  className="w-full h-48 object-cover mb-4 rounded cursor-pointer"
-                  onClick={() => navigate(`/game/${game.appid}`)}
-                />
-                <h3 className="text-white font-bold text-lg truncate cursor-pointer" 
-                  onClick={() => navigate(`/game/${game.appid}`)}>
-                  {game.name}
-                </h3>
-                <p className="text-gray-400 text-sm">
-                  {game.release_date?.date || "Data de lançamento não disponível"}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  Desenvolvedores:{" "}
-                  {game.developers.length > 0
-                    ? game.developers.join(", ")
-                    : "Indisponível"}
-                </p>
-                <button
-                  onClick={() => handleFav(game)}
-                  className={`mt-2 py-2 px-4 rounded text-white font-bold ${
-                    favs.some((fav) => fav.appid === game.appid)
-                      ? "bg-red-500"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  }`}
-                >
-                  {favs.some((fav) => fav.appid === game.appid)
-                    ? "Remover dos Favoritos"
-                    : "Adicionar aos Favoritos"}
-                </button>
-              </div>
-            ))}
-          </div>
+          <MainContainer
+            games={games}
+            handleFav={handleFav}
+            favs={favs}
+            handleAddToCart={handleAddToCart}
+            cartItems={cartItems}
+            handleRemoveFromCart={handleRemoveFromCart}
+            libraryGames={libraryGames}
+          />
         )}
       </div>
     </main>

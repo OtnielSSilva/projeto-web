@@ -6,6 +6,7 @@ import {
   getCartItems,
   removeItemFromCart,
   updateCartItemQuantity,
+  checkout,
 } from '../controllers/cartController';
 
 const router = Router();
@@ -21,5 +22,8 @@ router.put('/:itemId', authMiddleware, updateCartItemQuantity);
 
 // Remover item do carrinho
 router.delete('/:itemId', authMiddleware, removeItemFromCart);
+
+// Checkout
+router.post("/checkout", authMiddleware, checkout);
 
 export default router;

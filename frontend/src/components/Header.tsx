@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaShoppingCart, FaGamepad } from "react-icons/fa";
 import { MdFavorite, MdLogin } from "react-icons/md";
 
 interface HeaderProps {
   handleHomeClick?: () => void;
+  cartItemsCount: number; // Add a prop for the cart item count
 }
 
-function Header({ handleHomeClick }: HeaderProps) {
+function Header({ handleHomeClick, cartItemsCount }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; photoUrl: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Para exibir um estado de carregamento
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
@@ -19,7 +20,7 @@ function Header({ handleHomeClick }: HeaderProps) {
     const fetchUserProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        setIsLoading(false); // Define carregamento como falso se não houver token
+        setIsLoading(false);
         return;
       }
 
@@ -36,7 +37,7 @@ function Header({ handleHomeClick }: HeaderProps) {
           if (data.name && data.photoUrl) {
             setUser({ name: data.name, photoUrl: data.photoUrl });
           } else {
-            localStorage.removeItem("token"); // Remove token inválido
+            localStorage.removeItem("token");
           }
         } else {
           localStorage.removeItem("token");
@@ -45,7 +46,7 @@ function Header({ handleHomeClick }: HeaderProps) {
         console.error("Erro ao buscar perfil:", error);
         localStorage.removeItem("token");
       } finally {
-        setIsLoading(false); // Sempre define carregamento como falso
+        setIsLoading(false);
       }
     };
 
@@ -53,7 +54,7 @@ function Header({ handleHomeClick }: HeaderProps) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Remove o token ao deslogar
+    localStorage.removeItem("token");
     setUser(null);
     navigate("/login");
   };
@@ -126,7 +127,38 @@ function Header({ handleHomeClick }: HeaderProps) {
                 }`}
               >
                 <MdFavorite size={24} />
-                <span className="ml-2">Favoritos</span>
+                <span className="ml-2">Lista de Desejos</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/cart"
+                className={`flex items-center py-2 px-3 rounded md:p-0 ${
+                  currentPath === "/cart"
+                    ? "text-white bg-blue-700 md:bg-transparent md:text-blue-700"
+                    : "text-gray-400 hover:bg-gray-600 md:hover:bg-transparent md:border-0 md:hover:text-blue-700"
+                }`}
+              >
+                <FaShoppingCart size={24} />
+                <span className="ml-2">Carrinho</span>
+                {cartItemsCount > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {cartItemsCount}
+                  </span>
+                )}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/library"
+                className={`flex items-center py-2 px-3 rounded md:p-0 ${
+                  currentPath === "/library"
+                    ? "text-white bg-blue-700 md:bg-transparent md:text-blue-700"
+                    : "text-gray-400 hover:bg-gray-600 md:hover:bg-transparent md:border-0 md:hover:text-blue-700"
+                }`}
+              >
+                <FaGamepad size={24} />
+                <span className="ml-2">Biblioteca</span>
               </Link>
             </li>
             {isLoading ? (
